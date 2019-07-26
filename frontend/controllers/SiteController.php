@@ -1,10 +1,14 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Client;
+use common\models\Session;
+use common\models\Stat;
 use frontend\models\ResendVerificationEmailForm;
 use frontend\models\VerifyEmailForm;
 use Yii;
 use yii\base\InvalidArgumentException;
+use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -14,6 +18,7 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+use yii\web\Cookie;
 
 /**
  * Site controller
@@ -74,7 +79,65 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        $cookies = Yii::$app->request->cookies;
+        if (($client_id = $cookies->getValue('client_id')) === null) {
+            $client = new Client();
+
+            if ($client->save()) {
+                $client_id = $client->id;
+
+                Yii::$app->response->cookies->add(new Cookie([
+                    'name' => 'client_id',
+                    'value' => $client_id,
+                    'expire' => time() + 180 * 24 * 3600, //180 дней
+                ]));
+            } else {
+                throw new Exception('Internal Server Error', $client->errors);
+            }
+        }
+
+        if (($session_id = $cookies->getValue('client_session_id')) === null) {
+            $session = new Session([
+                'client_id' => $client_id,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+                'ip' => $_SERVER['REMOTE_ADDR'],
+            ]);
+
+            if ($session->save()) {
+                $session_id = $session->id;
+
+                Yii::$app->response->cookies->add(new Cookie([
+                    'name' => 'client_session_id',
+                    'value' => $session_id,
+                    'expire' => 0, //До закрытия браузера
+                ]));
+
+            } else {
+                throw new Exception('Internal Server Error', $session->errors);
+            }
+        }
+
         return $this->render('index');
+    }
+
+    public function actionSensors()
+    {
+        $sensors = Yii::$app->request->post('sensors', []);
+        if (!empty($sensors)) {
+            $cookies = Yii::$app->request->cookies;
+
+            $stat = new Stat([
+                'session_id' => $cookies->getValue('client_session_id'),
+            ]);
+
+            if ($stat->load($sensors, '') && $stat->save()) {
+                return $stat->id;
+            } else {
+                return json_encode($stat->errors);
+            }
+        }
+
+        return false;
     }
 
     /**
