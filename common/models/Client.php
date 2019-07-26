@@ -28,6 +28,16 @@ class Client extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
+    public function transactions()
+    {
+        return [
+            self::SCENARIO_DEFAULT => self::OP_DELETE,
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function behaviors()
     {
         return [
@@ -65,6 +75,14 @@ class Client extends \yii\db\ActiveRecord
      */
     public function getSessions()
     {
-        return $this->hasMany(Session::className(), ['client_id' => 'id']);
+        return $this->hasMany(Session::class, ['client_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStats()
+    {
+        return $this->hasMany(Stat::class, ['session_id' => 'id'])->via('sessions');
     }
 }

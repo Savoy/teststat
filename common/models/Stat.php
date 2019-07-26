@@ -76,7 +76,7 @@ class Stat extends \yii\db\ActiveRecord
      */
     public function getSession()
     {
-        return $this->hasOne(Session::className(), ['id' => 'session_id']);
+        return $this->hasOne(Session::class, ['id' => 'session_id']);
     }
 
     /**
@@ -98,7 +98,7 @@ class Stat extends \yii\db\ActiveRecord
      */
     public function afterFind()
     {
-        $this->motion ? json_decode($this->motion, true) : null;
+        $this->motion = $this->motion ? json_decode($this->motion, true) : null;
 
         parent::afterFind();
     }

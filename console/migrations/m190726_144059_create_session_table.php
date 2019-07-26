@@ -28,7 +28,7 @@ class m190726_144059_create_session_table extends Migration
             'client_id',
             '{{%client}}',
             'id',
-            'RESTRICT',
+            'CASCADE',
             'CASCADE'
         );
     }

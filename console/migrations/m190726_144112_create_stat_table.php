@@ -29,7 +29,7 @@ class m190726_144112_create_stat_table extends Migration
             'session_id',
             '{{%session}}',
             'id',
-            'RESTRICT',
+            'CASCADE',
             'CASCADE'
         );
     }

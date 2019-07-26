@@ -75,7 +75,7 @@ class Session extends \yii\db\ActiveRecord
      */
     public function getClient()
     {
-        return $this->hasOne(Client::className(), ['id' => 'client_id']);
+        return $this->hasOne(Client::class, ['id' => 'client_id']);
     }
 
     /**
@@ -83,7 +83,7 @@ class Session extends \yii\db\ActiveRecord
      */
     public function getStats()
     {
-        return $this->hasMany(Stat::className(), ['session_id' => 'id']);
+        return $this->hasMany(Stat::class, ['session_id' => 'id']);
     }
 
     /**
