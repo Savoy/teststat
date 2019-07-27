@@ -30,6 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'columns' => [
             ['class' => \yii\grid\SerialColumn::class],
+            'created_at:datetime',
             [
                 'attribute' => 'motion',
                 'value' => function ($model) {
